@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claudeをサロン集客専用AIに育てる初期設定マニュアル</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Noto Sans JP', sans-serif;
+    background: #f8f0f5;
+  }
+
+  .page {
+    width: 794px;
+    min-height: 1123px;
+    background: white;
+    margin: 20px auto;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  }
+
+  .stripe-top, .stripe-bottom {
+    height: 28px;
+    background: repeating-linear-gradient(
+      -45deg,
+      #f2a8c6 0px, #f2a8c6 14px,
+      #ffffff 14px, #ffffff 28px
+    );
+    flex-shrink: 0;
+  }
+
+  .page-content {
+    flex: 1;
+    padding: 32px 44px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .section-label {
+    display: inline-block;
+    background: linear-gradient(135deg, #c471ed, #f64f59);
+    color: white;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 5px 18px;
+    border-radius: 20px;
+    margin-bottom: 10px;
+    letter-spacing: 1px;
+  }
+
+  .page-title {
+    font-size: 30px;
+    font-weight: 900;
+    color: #5b2d8e;
+    line-height: 1.4;
+    margin-bottom: 8px;
+  }
+  .page-title span { color: #e8719a; }
+
+  .title-underline {
+    width: 70px;
+    height: 5px;
+    background: linear-gradient(90deg, #c471ed, #f64f59);
+    border-radius: 2px;
+    margin-bottom: 18px;
+  }
+
+  .card {
+    background: #fff5f9;
+    border-radius: 16px;
+    padding: 20px 24px;
+    border: 1.5px solid #f2d0e0;
+    margin-bottom: 14px;
+  }
+  .card-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #5b2d8e;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card-body {
+    font-size: 14px;
+    color: #444;
+    line-height: 1.9;
+  }
+
+  .steps-row {
+    display: flex;
+    gap: 10px;
+    align-items: stretch;
+    margin: 16px 0;
+  }
+  .step-card {
+    flex: 1;
+    background: #fff5f9;
+    border-radius: 16px;
+    padding: 22px 14px;
+    text-align: center;
+    border: 2px solid #f2a8c6;
+    position: relative;
+  }
+  .step-num {
+    background: linear-gradient(135deg, #c471ed, #e8719a);
+    color: white;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 12px;
+    display: inline-block;
+    margin-bottom: 12px;
+  }
+  .step-icon { font-size: 36px; margin-bottom: 10px; }
+  .step-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #5b2d8e;
+    line-height: 1.5;
+  }
+  .step-desc {
+    font-size: 11px;
+    color: #888;
+    margin-top: 6px;
+    line-height: 1.6;
+  }
+  .step-arrow {
+    display: flex;
+    align-items: center;
+    color: #e8719a;
+    font-size: 22px;
+    font-weight: 900;
+    flex-shrink: 0;
+  }
+
+  .point-box {
+    background: linear-gradient(135deg, #fce4f3, #f0e6ff);
+    border-radius: 14px;
+    padding: 18px 22px;
+    border-left: 5px solid #c471ed;
+    margin: 14px 0;
+  }
+  .point-box-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #5b2d8e;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .point-box-body {
+    font-size: 13px;
+    color: #444;
+    line-height: 1.9;
+  }
+
+  .prompt-box {
+    border-radius: 14px;
+    overflow: hidden;
+    margin: 12px 0;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+  }
+  .prompt-label {
+    background: linear-gradient(135deg, #5b2d8e, #c471ed);
+    color: white;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 10px 18px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .prompt-body {
+    background: #1e1e2e;
+    color: #e8e8e8;
+    font-size: 13px;
+    line-height: 2.0;
+    padding: 18px 22px;
+    white-space: pre-line;
+    font-family: 'Noto Sans JP', monospace;
+  }
+  .prompt-body .highlight { color: #f0a8c8; font-weight: 700; }
+
+  .compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    border-radius: 12px;
+    overflow: hidden;
+    margin: 14px 0;
+    font-size: 14px;
+  }
+  .compare-table th {
+    background: #5b2d8e;
+    color: white;
+    padding: 13px 16px;
+    text-align: center;
+    font-weight: 700;
+  }
+  .compare-table th:first-child { background: #3d1a6e; }
+  .compare-table td {
+    padding: 12px 16px;
+    text-align: center;
+    border-bottom: 1px solid #f0e0f0;
+    color: #333;
+    font-size: 14px;
+  }
+  .compare-table tr:nth-child(even) td { background: #fdf0f8; }
+  .compare-table tr:nth-child(odd) td { background: white; }
+  .compare-table td:last-child { background: #fff0f9 !important; font-weight: 700; color: #c471ed; }
+  .compare-table td:first-child { font-weight: 700; color: #5b2d8e; text-align: left; }
+
+  .type-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 14px 0;
+  }
+  .type-card {
+    background: #fff5f9;
+    border-radius: 14px;
+    padding: 16px 18px;
+    border: 1.5px solid #f2a8c6;
+  }
+  .type-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #c471ed, #e8719a);
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 12px;
+    margin-bottom: 8px;
+  }
+  .type-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #5b2d8e;
+    margin-bottom: 6px;
+  }
+  .type-example {
+    font-size: 12px;
+    color: #666;
+    line-height: 1.8;
+    background: white;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid #f0d0e8;
+  }
+
+  .line-box {
+    background: linear-gradient(135deg, #06c755, #04a844);
+    border-radius: 20px;
+    padding: 32px 36px;
+    text-align: center;
+    color: white;
+    margin: 14px 0;
+  }
+  .line-box-title {
+    font-size: 26px;
+    font-weight: 900;
+    margin-bottom: 10px;
+    line-height: 1.4;
+  }
+  .line-box-sub {
+    font-size: 14px;
+    opacity: 0.9;
+    margin-bottom: 16px;
+    line-height: 1.9;
+  }
+  .line-keyword {
+    background: white;
+    color: #06c755;
+    font-size: 32px;
+    font-weight: 900;
+    padding: 12px 56px;
+    border-radius: 50px;
+    display: inline-block;
+    margin: 12px 0;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+  }
+  .line-step-row {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 16px;
+  }
+  .line-step {
+    background: rgba(255,255,255,0.2);
+    border-radius: 12px;
+    padding: 10px 20px;
+    font-size: 13px;
+    font-weight: 700;
+    backdrop-filter: blur(4px);
+  }
+  .line-note {
+    font-size: 11px;
+    opacity: 0.8;
+    margin-top: 12px;
+  }
+
+  /* カバー */
+  .cover-bg {
+    background: linear-gradient(160deg, #f9e6ff 0%, #fff0f8 50%, #e8f4ff 100%);
+  }
+  .cover-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 36px 60px;
+    text-align: center;
+  }
+  .cover-badge {
+    background: linear-gradient(135deg, #c471ed, #f64f59);
+    color: white;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 7px 22px;
+    border-radius: 20px;
+    margin-bottom: 22px;
+    letter-spacing: 1px;
+  }
+  .cover-title {
+    font-size: 36px;
+    font-weight: 900;
+    color: #5b2d8e;
+    line-height: 1.5;
+    margin-bottom: 10px;
+  }
+  .cover-title .highlight {
+    background: linear-gradient(135deg, #c471ed, #e8719a);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .cover-subtitle {
+    font-size: 15px;
+    color: #888;
+    margin-bottom: 34px;
+    line-height: 1.9;
+  }
+  .cover-features {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 34px;
+    width: 100%;
+    max-width: 500px;
+  }
+  .cover-feature {
+    background: white;
+    border-radius: 12px;
+    padding: 14px 22px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #5b2d8e;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 2px 8px rgba(180,100,200,0.12);
+    border: 1.5px solid #f0d0f0;
+  }
+  .cover-author {
+    font-size: 13px;
+    color: #999;
+    margin-top: 10px;
+  }
+
+  /* 目次 */
+  .toc-item {
+    display: flex;
+    align-items: center;
+    padding: 16px 22px;
+    border-radius: 14px;
+    margin-bottom: 10px;
+    gap: 18px;
+    background: #fff5f9;
+    border: 1.5px solid #f2d0e0;
+  }
+  .toc-num {
+    background: linear-gradient(135deg, #c471ed, #e8719a);
+    color: white;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 5px 14px;
+    border-radius: 12px;
+    white-space: nowrap;
+    min-width: 78px;
+    text-align: center;
+  }
+  .toc-text { font-size: 15px; font-weight: 700; color: #5b2d8e; }
+  .toc-sub { font-size: 12px; color: #888; margin-top: 3px; }
+
+  /* Tip */
+  .tip-card {
+    background: white;
+    border-radius: 16px;
+    padding: 18px 22px;
+    border: 2px solid #f2a8c6;
+    margin-bottom: 14px;
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+  }
+  .tip-num {
+    background: linear-gradient(135deg, #c471ed, #e8719a);
+    color: white;
+    font-size: 20px;
+    font-weight: 900;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .tip-title { font-size: 15px; font-weight: 700; color: #5b2d8e; margin-bottom: 6px; }
+  .tip-body { font-size: 13px; color: #555; line-height: 1.9; }
+
+  .page-footer {
+    text-align: right;
+    font-size: 10px;
+    color: #ccc;
+    padding: 0 44px 8px;
+  }
+
+  /* CTA */
+  .cta-heading {
+    text-align: center;
+    margin-bottom: 8px;
+  }
+  .cta-heading .label {
+    font-size: 13px;
+    color: #888;
+    margin-bottom: 6px;
+  }
+  .cta-heading .big-title {
+    font-size: 26px;
+    font-weight: 900;
+    color: #5b2d8e;
+    line-height: 1.5;
+  }
+  .cta-heading .big-title span { color: #e8719a; }
+  .cta-heading .desc {
+    font-size: 13px;
+    color: #666;
+    margin-top: 10px;
+    line-height: 1.9;
+  }
+  .auto-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+    margin: 16px 0;
+  }
+  .auto-card {
+    background: #fff5f9;
+    border-radius: 14px;
+    padding: 18px 14px;
+    text-align: center;
+    border: 2px solid #f2a8c6;
+  }
+  .auto-card .icon { font-size: 32px; margin-bottom: 10px; }
+  .auto-card .title { font-size: 13px; font-weight: 700; color: #5b2d8e; margin-bottom: 6px; }
+  .auto-card .desc { font-size: 11px; color: #777; line-height: 1.7; }
+
+  /* 特典ボックス */
+  .tokuten-box {
+    background: linear-gradient(135deg, #fff8e1, #fff3cd);
+    border-radius: 16px;
+    padding: 22px 26px;
+    border: 2px solid #ffa726;
+    margin: 14px 0;
+  }
+  .tokuten-title {
+    font-size: 18px;
+    font-weight: 900;
+    color: #e65100;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .tokuten-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 12px;
+    background: white;
+    border-radius: 12px;
+    padding: 14px 18px;
+    border: 1px solid #ffe0b2;
+  }
+  .tokuten-num {
+    background: linear-gradient(135deg, #ffa726, #fb8c00);
+    color: white;
+    font-size: 13px;
+    font-weight: 900;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .tokuten-item-title { font-size: 14px; font-weight: 700; color: #5b2d8e; margin-bottom: 4px; }
+  .tokuten-item-desc { font-size: 12px; color: #666; line-height: 1.7; }
+
+  .next-page-box {
+    background: linear-gradient(135deg, #f9e6ff, #ffe0f0);
+    border-radius: 16px;
+    padding: 20px 26px;
+    border: 2px dashed #c471ed;
+    text-align: center;
+    margin-top: 14px;
+  }
+  .next-page-box .label { font-size: 12px; color: #c471ed; font-weight: 700; margin-bottom: 6px; }
+  .next-page-box .text { font-size: 16px; font-weight: 900; color: #5b2d8e; line-height: 1.6; }
+  .next-page-box .sub { font-size: 12px; color: #888; margin-top: 6px; line-height: 1.8; }
+
+  @media print {
+    body { background: white; }
+    .page {
+      margin: 0;
+      box-shadow: none;
+      page-break-after: always;
+      break-after: page;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- ========== 表紙 ========== -->
+<div class="page cover-bg">
+  <div class="stripe-top"></div>
+  <div class="cover-content">
+    <div class="cover-badge">✨ 完全無料 ｜ たった10分でできる初期設定マニュアル</div>
+    <div class="cover-title">
+      Claudeを<br>
+      <span class="highlight">サロン集客専用AI</span>に<br>育てる
+    </div>
+    <div style="height:5px; width:90px; background:linear-gradient(90deg,#c471ed,#e8719a); border-radius:2px; margin:14px auto 22px;"></div>
+    <div class="cover-subtitle">
+      〜 AIを使ったことがない人でも、<strong>たった10分</strong>で今日から投稿が作れる 〜
+    </div>
+    <div class="cover-features">
+      <div class="cover-feature">✅　Claudeの無料登録から丁寧に解説</div>
+      <div class="cover-feature">✅　コピペするだけで使える初期設定テンプレ付き</div>
+      <div class="cover-feature">✅　Threads投稿がすぐ作れるプロンプト集付き</div>
+    </div>
+    <div class="cover-author">幸村｜AIをサロンの専属マーケターに育てる人</div>
+  </div>
+  <div class="stripe-bottom"></div>
+</div>
+
+<!-- ========== 目次 ========== -->
+<div class="page">
+  <div class="stripe-top"></div>
+  <div class="page-content">
+    <div style="text-align:center; margin-bottom:26px;">
+      <div class="page-title" style="text-align:center;">目　次</div>
+      <div class="title-underline" style="margin:8px auto 0;"></div>
+    </div>
+    <div class="toc-item">
+      <div><div class="toc-num">はじめに</div></div>
+      <div><div class="toc-text">Claudeって何？ChatGPTと何が違うの？</div><div class="toc-sub">比較表つきで分かりやすく解説</div></div>
+    </div>
+    <div class="toc-item">
+      <div><div class="toc-num">STEP 1</div></div>
+      <div><div class="toc-text">Claudeに無料登録する</div><div class="toc-sub">スマホでも3分で完了</div></div>
+    </div>
+    <div class="toc-item">
+      <div><div class="toc-num">STEP 2</div></div>
+      <div><div class="toc-text">サロン専用AIに育てる「初期設定」</div><div class="toc-sub">コピペするだけ！設定用プロンプト付き</div></div>
+    </div>
+    <div class="toc-item">
+      <div><div class="toc-num">STEP 3</div></div>
+      <div><div class="toc-text">Threads投稿を作ってもらう</div><div class="toc-sub">投稿5型の一覧と使い方</div></div>
+    </div>
+    <div class="toc-item">
+      <div><div class="toc-num">STEP 4</div></div>
+      <div><div class="toc-text">そのまま使えるプロンプト集</div><div class="toc-sub">今日から使えるプロンプトをまとめて収録</div></div>
+    </div>
+    <div class="toc-item">
+      <div><div class="toc-num">最後に</div></div>
+      <div><div class="toc-text">使う前に気になるよくある質問</div><div class="toc-sub">不安を解消してから始めましょう</div></div>
+    </div>
+  </div>
+  <div class="stripe-bottom"></div>
+</div>
+
+<!-- ========== はじめに ========== -->
+<div class="page">
+  <div class="stripe-top"></div>
+  <div class="page-content">
+    <div>
+      <div class="section-label">はじめに</div>
+      <div class="page-title">Claudeって何？<br><span>ChatGPTと何が違うの？</span></div>
+      <div class="title-underline"></div>
+
+      <p style="font-size:14px; color:#444; line-height:2.0; margin-bottom:18px;">
+        Claudeはアメリカ・Anthropic社が開発したAIアシスタントです。ChatGPTと同じく文章作成・質問回答・アイデア出しができますが、<strong style="color:#5b2d8e;">長文設計と戦略相談に特に優れており、サロン集客の投稿作りにぴったりです。</strong>
+      </p>
+
+      <table class="compare-table">
+        <tr>
+          <th>比較項目</th>
+          <th>ChatGPT</th>
+          <th>⭐ Claude（今回使う）</th>
+        </tr>
+        <tr><td>無料で使える</td><td>◯</td><td>◎</td></tr>
+        <tr><td>日本語の自然さ</td><td>◯</td><td>◎</td></tr>
+        <tr><td>長文・戦略相談</td><td>△</td><td>◎</td></tr>
+        <tr><td>投稿文の設計</td><td>△</td><td>◎</td></tr>
+        <tr><td>会話内の記憶力</td><td>◯</td><td>◎</td></tr>
+      </table>
+    </div>
+
+    <div class="point-box">
+      <div class="point-box-title">💡 ワンポイント</div>
+      <div class="point-box-body">
+        Claudeは「同じ会話の中では前に話した内容を覚えている」ので、<strong>一度サロンの情報を教えると、そのあとの投稿作りがどんどん楽になります。</strong><br>
+        これが「育てる」ということです。
+      </div>
+    </div>
+  </div>
+  <div class="page-footer">幸村｜AIをサロンの専属マーケターに育てる人</div>
+  <div class="stripe-bottom"></div>
+</div>
+
+<!-- ========== STEP 1 ========== -->
+<div class="page">
+  <div class="stripe-top"></div>
+  <div class="page-content">
+    <div>
+      <div class="section-label">STEP 1</div>
+      <div class="page-title">Claudeに<span>無料登録</span>する</div>
+      <div class="title-underline"></div>
+
+      <div class="steps-row">
+        <div class="step-card">
+          <div class="step-num">STEP 1</div>
+          <div class="step-icon">🌐</div>
+          <div class="step-title">claude.aiを<br>ブラウザで開く</div>
+          <div class="step-desc">スマホ・PCどちらでも使えます</div>
+        </div>
+        <div class="step-arrow">→</div>
+        <div class="step-card">
+          <div class="step-num">STEP 2</div>
+          <div class="step-icon">🖱️</div>
+          <div class="step-title">「Sign up<br>for free」をクリック</div>
+          <div class="step-desc">Googleアカウントでも登録できます</div>
+        </div>
+        <div class="step-arrow">→</div>
+        <div class="step-card">
+          <div class="step-num">STEP 3</div>
+          <div class="step-icon">📧</div>
+          <div class="step-title">Googleまたは<br>メールで登録</div>
+          <div class="step-desc">アカウントがあればログインするだけ</div>
+        </div>
+        <div class="step-arrow">→</div>
+        <div class="step-card">
+          <div class="step-num">STEP 4</div>
+          <div class="step-icon">✨</div>
+          <div class="step-title">入力欄が表示<br>されたら完了！</div>
+          <div class="step-desc">画面中央に入力欄が出ればOK</div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="point-box" style="background:linear-gradient(135deg,#e8f8ef,#d4f5e2); border-left-color:#06c755;">
+        <div class="point-box-title" style="color:#1a7a3c;">🆓 無料プランで十分です</div>
+        <div class="point-box-body">
+          このマニュアルで紹介する使い方はすべて<strong>無料プランで可能</strong>です。<br>
+          1日の使用回数に上限がありますが、投稿作りには十分な量です。
+        </div>
+      </div>
+
+      <div class="point-box" style="background:linear-gradient(135deg,#fff8e1,#fff3cd); border-left-color:#ffa726;">
+        <div class="point-box-title" style="color:#e65100;">⚠️ 大切なこと</div>
+        <div class="point-box-body">
+          毎回<strong>新しい会話を開かずに、同じ会話を続けて使いましょう。</strong><br>
+          新しい会話を開くとClaudeは記憶をリセットします。初期設定した会話をブックマークしておくのがコツです。
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="page-footer">幸村｜AIをサロンの専属マーケターに育てる人</div>
+  <div class="stripe-bottom"></div>
+</div>
+
+<!-- ========== STEP 2 ========== -->
+<div class="page">
+  <div class="stripe-top"></div>
+  <div class="page-content">
+    <div>
+      <div class="section-label">STEP 2</div>
+      <div class="page-title">サロン専用AIに育てる<br><span>「初期設定」</span></div>
+      <div class="title-underline"></div>
+
+      <p style="font-size:14px; color:#444; line-height:1.9; margin-bottom:14px;">
+        Claudeを開いたら、<strong style="color:#5b2d8e;">最初に「あなたのサロンの情報」を教えます。</strong> 以下をコピーして [ ] の中だけ書き換えて送るだけでOKです。
+      </p>
+
+      <div class="prompt-box">
+        <div class="prompt-label">📋 コピーしてそのまま使える！初期設定プロンプト</div>
+        <div class="prompt-body">あなたは私のサロンの専属SNSマーケターです。
+以下の情報を覚えて、今後の投稿作りに活かしてください。
+
+<span class="highlight">【サロン情報】</span>
+・サロン名：[例：ネイルサロン〇〇]
+・メニュー：[例：ジェルネイル、ケアネイル]
+・ターゲット：[例：30〜40代の働く女性]
+・強み：[例：深夜営業、駅から徒歩1分]
+・実績：[例：3年間毎月20人の新規集客に成功]
+
+<span class="highlight">【投稿のルール】</span>
+・ハッシュタグは使わない
+・絵文字は最小限
+・1投稿は150文字以内
+・説明っぽい文章はNG。刺さる一言で止める。
+
+上記を理解したら「了解しました！何を作りますか？」とだけ返してください。</div>
+      </div>
+    </div>
+
+    <div class="point-box">
+      <div class="point-box-title">✅ 「了解しました！」と返ってきたら初期設定完了です</div>
+      <div class="point-box-body">この会話をブックマーク（お気に入り）しておくと、次回からすぐ使えます。</div>
+    </div>
+  </div>
+  <div class="page-footer">幸村｜AIをサロンの専属マーケターに育てる人</div>
+  <div class="stripe-bottom"></div>
+</div>
+
+<!-- ========== STEP 3 ========== -->
+<div class="page">
+  <div class="stripe-top"></div>
+  <div class="page-content">
+    <div>
+      <div class="section-label">STEP 3</div>
+      <div class="page-title">Threads投稿を<span>作ってもらう</span></div>
+      <div class="title-underline"></div>
+
+      <p style="font-size:14px; color:#444; line-height:1.9; margin-bottom:16px;">
+        初期設定が終わったら、投稿の<strong style="color:#5b2d8e;">「型」を指定して作ってもらうだけ</strong>です。投稿には5つの型があります。
+      </p>
+
+      <div class="type-grid">
+        <div class="type-card">
+          <div class="type-badge">問いかけ型</div>
+          <div class="type-title">共感・フォロー獲得</div>
+          <div class="type-example">今月の新規、正直何人でしたか？<br>A：5人以下　B：10人前後　C：20人以上</div>
+        </div>
+        <div class="type-card">
+          <div class="type-badge">断言型</div>
+          <div class="type-title">スクロールを止める</div>
+          <div class="type-example">フォロワー数より予約導線。これだけ。</div>
+        </div>
+        <div class="type-card">
+          <div class="type-badge">実体験型</div>
+          <div class="type-title">信頼・専門性を伝える</div>
+          <div class="type-example">3年前、毎日投稿してたのに月5人しか来なかった。変えたのは投稿頻度じゃなくて、設計だった。</div>
+        </div>
+        <div class="type-card">
+          <div class="type-badge">リスト型</div>
+          <div class="type-title">保存・シェア狙い</div>
+          <div class="type-example">集客が止まるサロンがやりがちなSNSの失敗5選。①〜⑤ いくつ当てはまった？</div>
+        </div>
+      </div>
+
+      <div class="type-card" style="display:flex; gap:14px; align-items:center;">
+        <div style="flex-shrink:0;">
+          <div class="type-badge">CTA型</div>
+          <div class="type-title" style="margin-top:4px;">LINE登録・問い合わせ誘導</div>
+        </div>
+        <div class="type-example" style="flex:1;">AI集客ロードマップ、欲しい人いますか？<br>欲しい人はコメントください。</div>
+      </div>
+    </div>
+
+    <div class="point-box" style="margin-top:14px;">
+      <div class="point-box-title">💡 作り方はとてもシンプル</div>
+      <div class="point-box-body">「<strong>断言型の投稿を1本作って</strong>」と送るだけでClaudeが作ってくれます。<br>
+      気に入らなければ「もっと短く」「別の切り口で」と追加指示すればOKです。</div>
+    </div>
+  </div>
+  <div class="page-footer">幸村｜AIをサロンの専属マーケターに育てる人</div>
+  <div class="stripe-bottom"></div>
+</div>
+
+<!-- ========== STEP 4 ========== -->
+<div class="page">
+  <div class="stripe-top"></div>
+  <div class="page-content">
+    <div>
+      <div class="section-label">STEP 4</div>
+      <div class="page-title">そのまま使える<span>プロンプト集</span></div>
+      <div class="title-underline"></div>
+
+      <p style="font-size:13px; color:#888; margin-bottom:14px;">▼ 初期設定の後にそのままコピペして使えます</p>
+
+      <div class="prompt-box">
+        <div class="prompt-label">✏️ 今日の投稿を30本まとめて作って</div>
+        <div class="prompt-body">今日のThreads投稿を30本作ってください。
+内訳：問いかけ7本・断言7本・実体験5本・リスト5本・CTA4本・フォロー誘導2本
+番号を振って出力してください。</div>
+      </div>
+
+      <div class="prompt-box">
+        <div class="prompt-label">✏️ 断言型の投稿を1本作って</div>
+        <div class="prompt-body">断言型の投稿を1本作ってください。
+ルール：1〜3行、常識を裏切る逆説、断言で終わる。</div>
+      </div>
+
+      <div class="prompt-box">
+        <div class="prompt-label">✏️ 気に入らなかった投稿を修正して</div>
+        <div class="prompt-body">さっき作ってくれたNo.〇〇の投稿を修正してください。
+修正の方向：[例：もっと短く / もっと危機感を出して / 別の切り口で]</div>
+      </div>
+
+      <div class="prompt-box">
+        <div class="prompt-label">✏️ 今週1週間分をまとめて作って</div>
+        <div class="prompt-body">今週のThreads投稿を7本作ってください。
+月〜日で1本ずつ、バラエティが出るように型を変えてください。</div>
+      </div>
+    </div>
+  </div>
+  <div class="page-footer">幸村｜AIをサロンの専属マーケターに育てる人</div>
+  <div class="stripe-bottom"></div>
+</div>
+
+<!-- ========== よくある質問 ========== -->
+<div class="page">
+  <div class="stripe-top"></div>
+  <div class="page-content">
+    <div>
+      <div class="section-label">最後に</div>
+      <div class="page-title">使う前に気になる<br><span>よくある質問</span></div>
+      <div class="title-underline"></div>
+
+      <div class="card">
+        <div class="card-title">💰 Q. Claudeって無料で使えますか？</div>
+        <div class="card-body">
+          <strong style="color:#06c755;">A. はい、無料プランで十分使えます。</strong><br>
+          このマニュアルで紹介している使い方はすべて無料プランで可能です。1日の利用回数に上限はありますが、投稿作りには十分な量です。有料プランは月額約3,000円ですが、最初は無料で始めてください。
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">⏰ Q. 毎日使わないといけないですか？</div>
+        <div class="card-body">
+          <strong style="color:#5b2d8e;">A. 週1回、まとめて作るのが一番効率的です。</strong><br>
+          「今週の投稿7本作って」と送るだけで一気に生成できます。毎日ログインする必要はありません。週に1回、10〜15分作業するだけで1週間分の投稿が揃います。
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">😟 Q. AIが作った文章って、バレませんか？</div>
+        <div class="card-body">
+          <strong style="color:#5b2d8e;">A. 初期設定をしっかりすれば、あなたの言葉になります。</strong><br>
+          STEP 2の初期設定でサロン情報・口調・ルールを教えると、Claudeはあなたの「専属ライター」として動きます。生成された文章は必ず自分の目で確認して、気になる部分だけ修正しましょう。
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📱 Q. スマホだけでも使えますか？</div>
+        <div class="card-body">
+          <strong style="color:#5b2d8e;">A. はい、スマホのブラウザだけで完結します。</strong><br>
+          アプリのインストールも不要です。claude.aiをブラウザで開いてログインするだけ。空き時間にスマホで投稿を生成して、そのままThreadsに貼り付けられます。
+        </div>
+      </div>
+    </div>
+
+    <div class="next-page-box">
+      <div class="label">▼ 次のページをご確認ください</div>
+      <div class="text">さらに一歩先へ進みたい方へ<br><span style="color:#e8719a;">特別なご案内があります</span></div>
+      <div class="sub">投稿作りだけでなく、集客全体を仕組み化したい方はぜひ読んでください。</div>
+    </div>
+  </div>
+  <div class="page-footer">幸村｜AIをサロンの専属マーケターに育てる人</div>
+  <div class="stripe-bottom"></div>
+</div>
+
+<!-- ========== 最終CTA ========== -->
+<div class="page">
+  <div class="stripe-top"></div>
+  <div class="page-content">
+    <div>
+      <div class="cta-heading">
+        <div class="label">さらに集客できる投稿を自動化したい方へ</div>
+        <div style="height:4px; width:70px; background:linear-gradient(90deg,#c471ed,#e8719a); border-radius:2px; margin:8px auto;"></div>
+        <div class="big-title">無料面談で<br>あなたのサロンの<span>集客を設計します</span></div>
+        <div class="desc">
+          このマニュアルでClaudeの使い方はわかった。<br>
+          でも、<strong style="color:#5b2d8e;">「自分のサロンにどう活かすか」が正直まだわからない。</strong><br>
+          そんな方のために、<strong style="color:#e8719a;">完全無料の個別面談</strong>を用意しています。<br>
+          LINEに「面談」と送るだけで担当者からご連絡します。
+        </div>
+      </div>
+
+    </div>
+
+    <div class="line-box">
+      <div class="line-box-title">📲 LINEで「面談」と送るだけ</div>
+      <div class="line-box-sub">
+        担当者から日程調整のご連絡をします。
+      </div>
+      <div class="line-keyword">面　談</div>
+      <div class="line-box-sub" style="margin-top:10px; margin-bottom:4px;">
+        ↑ このキーワードをLINEで送信するだけ
+      </div>
+      <div class="line-step-row">
+        <div class="line-step">🚫 勧誘・押し売りなし</div>
+        <div class="line-step">💬 相談だけでもOK</div>
+        <div class="line-step">✅ 完全無料</div>
+      </div>
+      <div class="line-note">※ 「自分のサロンに合うか確認したい」「まず話だけ聞きたい」という相談も大歓迎です</div>
+    </div>
+
+    <div style="text-align:center; font-size:11px; color:#aaa; margin-top:6px;">
+      幸村｜AIをサロンの専属マーケターに育てる人　　Threads: @ai_syukyaku_yukimura
+    </div>
+  </div>
+  <div class="stripe-bottom"></div>
+</div>
+
+</body>
+</html>
